@@ -1,0 +1,33 @@
+
+.header {
+  margin: 0;
+  padding: 5px 20px;
+  color: #fff;
+  background: #232f3e;
+}
+
+.offline-banner {
+  color: orangered;
+  font-size: 18px;
+}
+
+.link {
+  font-size: 20px;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.container{
+  padding: 10px;
+  font-size: 16px;
+  margin: auto;
+  max-width: 1600px;
+}
+.nav {
+  padding: 10px 10px;
+}

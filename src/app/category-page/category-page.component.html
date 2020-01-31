@@ -1,0 +1,15 @@
+<h2>{{categoryName | uppercase}}</h2>
+<ul class="products">
+  <li *ngFor="let product of products" class="product">
+    <a routerLink="/product/{{product.id}}" class="link">
+      <img class="image" src="{{product.image}}" alt="{{product.name}}">
+      <div ><span  class="name">{{product.name}}</span> <sup *ngIf="product.promo" class="promo">{{product.promo}}</sup></div>
+      <div *ngIf="!product.salePrice" class="price">Price: {{product.price | currency}}</div>
+      <div *ngIf="product.salePrice" class="sale-price">Price: <span
+        class="old-price">{{product.price | currency}}</span> {{product.salePrice | currency}}</div>
+      <div class="quantity">Quantity: {{product.quantity}}</div>
+      <div class="sale-price">Year: {{product.year}}</div>
+    </a>
+  </li>
+</ul>
+
