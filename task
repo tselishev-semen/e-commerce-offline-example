@@ -1,0 +1,22 @@
+3. Dashboard + Grid + Product Details
+4. SW
+
+
+//category request - restore from SW cache
+//product details -
+//search
+
+
+======
+open category -> put to IndexedDB products
+offline -> open category with products from cache
+
+
+
+open product-> take data from products
+
+
+
+
+
+

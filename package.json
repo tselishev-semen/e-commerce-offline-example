@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
+    "start-fe": "ng serve --proxy-config proxy.config.json --port=9111",
     "start": "ng serve --proxy-config proxy.config.json --port=9111 & netlify-lambda serve api",
+    "start-api": "netlify-lambda serve api",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",

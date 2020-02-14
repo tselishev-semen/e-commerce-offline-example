@@ -1,0 +1,10 @@
+<div [ngClass]="{'banner': true, 'banner--online': online, 'banner--offline': !online}">
+  <ng-template *ngIf="online; then thenBlock else elseBlock"></ng-template>
+
+  <ng-template #thenBlock>
+    Site is online.
+  </ng-template>
+  <ng-template #elseBlock>
+    Site is offline.
+  </ng-template>
+</div>
