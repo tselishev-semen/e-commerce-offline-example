@@ -1,6 +1,6 @@
 # Local Netlify folder
 .netlify
-
+/lambda
 # compiled output
 /dist
 /tmp

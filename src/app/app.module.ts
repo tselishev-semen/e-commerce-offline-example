@@ -12,6 +12,8 @@ import {DashboardComponent} from './dashboard/dashboard.component';
 // import {HeroBirthdayComponent} from './hero-birthday.component';
 import {HttpClientModule} from '@angular/common/http';
 import { OnlineBannerComponent } from './online-banner/online-banner.component';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 
 @NgModule({
@@ -27,7 +29,8 @@ import { OnlineBannerComponent } from './online-banner/online-banner.component';
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ServiceWorkerModule.register('service-worker.js')
   ],
   bootstrap: [AppComponent]
 })
