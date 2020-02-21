@@ -14,6 +14,10 @@ import {HttpClientModule} from '@angular/common/http';
 import { OnlineBannerComponent } from './online-banner/online-banner.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
+import { OfflineComponent } from './offline/offline.component';
+import { CategoryPageComponent } from './category-page/category-page.component';
+import { ProductPageComponent } from './product-page/product-page.component';
+import { HomePageComponent } from './home-page/home-page.component';
 
 
 @NgModule({
@@ -24,6 +28,10 @@ import { environment } from '../environments/environment';
     MessagesComponent,
     DashboardComponent,
     OnlineBannerComponent,
+    OfflineComponent,
+    CategoryPageComponent,
+    ProductPageComponent,
+    HomePageComponent,
   ],
   imports: [
     BrowserModule,
