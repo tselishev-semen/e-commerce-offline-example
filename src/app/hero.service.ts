@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
-import {Hero} from './hero';
-import {HEROES} from './mock-heroes';
+import {Product} from './product';
 import {MessageService} from './message.service';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {catchError, tap} from "rxjs/operators";
@@ -34,21 +33,21 @@ export class HeroService {
     };
   }
 
-  getHero(id: number): Observable<Hero> {
-    const url = `${this.heroesUrl}/${id}`;
-
-    return this.http.get<Hero>(url)
-      .pipe(
-        tap(_ => this.log(`fetched hero id=${id}`)),
-        catchError(this.handleError<Hero>(`getHero id=${id}`))
-      );
-  }
-
-  getHeroes(): Observable<Hero[]> {
-    return this.http.get<Hero[]>(this.heroesUrl)
-      .pipe(
-        tap(_ => this.log('fetched heroes')),
-        catchError(this.handleError<Hero[]>('getHeroes', []))
-      );
-  }
+  // getHero(id: number): Observable<Category> {
+  //   const url = `${this.heroesUrl}/${id}`;
+  //
+  //   return this.http.get<Category>(url)
+  //     .pipe(
+  //       tap(_ => this.log(`fetched hero id=${id}`)),
+  //       catchError(this.handleError<Category>(`getHero id=${id}`))
+  //     );
+  // }
+  //
+  // getHeroes(): Observable<Category[]> {
+  //   return this.http.get<Category[]>(this.heroesUrl)
+  //     .pipe(
+  //       tap(_ => this.log('fetched heroes')),
+  //       catchError(this.handleError<Category[]>('getHeroes', []))
+  //     );
+  // }
 }

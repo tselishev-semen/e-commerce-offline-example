@@ -1,7 +1,9 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {CategoryService} from "../category.service";
-import {Location} from "@angular/common";
+import {ActivatedRoute, Navigation} from '@angular/router';
+import {ProductsService} from "../products.service";
+import {Product} from "../product";
+import {switchMap} from "rxjs/operators";
+
 
 @Component({
   selector: 'app-category-page',
@@ -10,10 +12,12 @@ import {Location} from "@angular/common";
 })
 export class CategoryPageComponent implements OnInit {
 
+  products: Product[] = [];
+  categoryName: string;
+
   constructor(
     private route: ActivatedRoute,
-    private categoryService: CategoryService,
-    private location: Location
+    private categoryService: ProductsService,
   ) {
   }
 
@@ -22,13 +26,14 @@ export class CategoryPageComponent implements OnInit {
     this.getProducts();
   }
 
-  goBack(): void {
-    this.location.back();
-  }
 
   getProducts(): void {
-    const categoryName = this.route.snapshot.paramMap.get('name');
-    this.heroService.getHero(id)
-      .subscribe(hero => this.hero = hero);
+    this.route.params.pipe(
+      switchMap(params => {
+        this.categoryName = params.name;
+        return this.categoryService.getProductsByCategory(params.name);
+      })
+    )
+      .subscribe(products => this.products = products);
   }
 }

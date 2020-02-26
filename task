@@ -16,6 +16,10 @@ offline -> open category with products from cache
 open product-> take data from products
 
 
+//SW
+redirect all urls to home
+
+
 
 
 

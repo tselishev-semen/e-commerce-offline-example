@@ -5,13 +5,13 @@ let db;
 //https://thomashunter.name/posts/2019-04-30-service-workers
 const CACHE = 'static-v1'; // name of the current cache
 const OFFLINE = '/';
-const AUTO_CACHE = [ // URLs of assets to immediately cache
-  OFFLINE,
-  '/',
-  '/service-worker.js',
-  '/manifest.webmanifest',
-  '/favicon.ico',
-];
+// const AUTO_CACHE = [ // URLs of assets to immediately cache
+//   OFFLINE,
+//   '/',
+//   '/service-worker.js',
+//   '/manifest.webmanifest',
+//   '/favicon.ico',
+// ];
 
 async function getProductById(id) {
   let transaction = db.transaction('products', "readonly");
@@ -31,14 +31,11 @@ async function getProductByCategory(category) {
   return products
 }
 
-const initializeDb = async ()=>{
+const initializeDb = async () => {
   db = await idb.openDB('e-commerce-db', '1', {
     upgrade(db, oldVersion, newVersion, transaction) {
       const productsStore = db.createObjectStore('products', {keyPath: "id"});
       productsStore.createIndex('categoryIndex', 'category');
-
-      productsStore.put({id: '1', name: 'product1', category: 'shoes'});
-      productsStore.put({id: '2', name: 'product2', category: 'dress'});
     },
     blocked() {
       // …
@@ -56,44 +53,73 @@ const initializeDb = async ()=>{
 self.addEventListener('install', function (event) {
   console.log('INSTALL')
   event.waitUntil(
-    initializeDb()
-  // caches.open(CACHE)
-  //     .then(cache => cache.addAll(AUTO_CACHE))
-  //     .then(initializeDb)
-  //     .then(self.skipWaiting())
-  );
+    initializeDb(),
+    // () => self.skipWaiting()
+    // caches.open(CACHE)
+    //     .then(cache => cache.addAll(AUTO_CACHE))
+    //     .then(initializeDb)
+  )
+  self.skipWaiting();
 });
 
 
-const forwardCachedResources = (event) => async () => {
+const cacheProductsRequest = async (product) => {
+  let transaction = db.transaction('products', "readwrite");
+  let productsStore = transaction.objectStore("products");
+  productsStore.put(product);
+  await transaction.done;
+};
 
+const cacheCategoryRequest = async (products) => {
+  let transaction = db.transaction('products', "readwrite");
+  let productsStore = transaction.objectStore("products");
+  products.forEach((product) => {
+    productsStore.put(product)
+  });
+  await transaction.done;
+};
+
+
+const isProductsRequest = (url) => /\.netlify\/functions\/products/.test(requestUrl);
+const isCategoryRequest = (url) => /\.netlify\/functions\/category/.test(url);
+
+const forwardCachedResources = (event) => async () => {
   let requestUrl = event.request.url;
-  let isCategoryRequest = /\.netlify\/functions\/categories/.test(requestUrl);
-  let isProductsRequest = /\.netlify\/functions\/products/.test(requestUrl);
   const entity = requestUrl.replace(/\/(.*)$/, '$1');
-  console.log(entity, isCategoryRequest, isProductsRequest)
-  if (isCategoryRequest) {
+  // console.log(entity, isCategoryRequest, isProductsRequest)
+  if (isCategoryRequest(requestUrl)) {
     const products = await getProductByCategory(entity);
     console.log(products)
     return products
-    // const product = requestUrl.replace(/categories\/(.*)/, '$1');
-  } else if (isProductsRequest) {
+  } else if (isProductsRequest((requestUrl))) {
     const product = await getProductById(entity);
     return product
   }
-  return fetch(event.request);
+  throw event;
+  // return fetch(event.request);
 }
 
 
 self.addEventListener('fetch', event => {
-  if(/\.netlify\/functions/.test(event.request.url)){
+  let url = event.request.url;
+  if (/\.netlify\/functions/.test(url)) {
     console.log('URL')
     return event.respondWith(
-      fetch(event.request).catch(forwardCachedResources(event))
+      fetch(event.request)
+        .then(async (result) => {
+          console.log('then', isProductsRequest(url), isCategoryRequest(url))
+          // if (isProductsRequest(url)) {
+          //   await cacheProductsRequest(result);
+          // } else if (isCategoryRequest(url)) {
+          //   await cacheCategoryRequest(result)
+          // }
+          return await result
+        })
+        .catch(forwardCachedResources(event))
     );
   }
 
-  if (!event.request.url.startsWith(self.location.origin) || event.request.method !== 'GET') {
+  if (!url.startsWith(self.location.origin) || event.request.method !== 'GET') {
     // External request, or POST, ignore
     return void event.respondWith(fetch(event.request));
   }

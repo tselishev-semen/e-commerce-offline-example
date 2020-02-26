@@ -1,0 +1,31 @@
+.products {
+  color: navy;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(100px, 1fr));
+  list-style-type: none;
+  grid-column-gap: 40px;
+}
+
+.promo {
+  color: coral;
+}
+
+.name {
+  font-size: 1.2em;
+}
+
+.old-price {
+  text-decoration: line-through;
+}
+
+.link {
+  padding: 5px;
+  display: block;
+  color: navy;
+  text-decoration: none;
+}
+
+.image {
+  max-width: 100%;
+  max-height: 100%;
+}

@@ -1,10 +1,4 @@
-<div [ngClass]="{'banner': true, 'banner--online': online, 'banner--offline': !online}">
-  <ng-template *ngIf="online; then thenBlock else elseBlock"></ng-template>
-
-  <ng-template #thenBlock>
-    Site is online.
-  </ng-template>
-  <ng-template #elseBlock>
-    Site is offline.
-  </ng-template>
+<div *ngIf="!online" class="banner">
+  It looks you are experiencing some internet connection issues, but don't worry.
+  The offline version of the site is still available for you.
 </div>

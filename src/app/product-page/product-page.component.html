@@ -1,1 +1,18 @@
-<p>product-page works!</p>
+<div *ngIf="product">
+
+  <section>
+    <img src="{{product.image}}"/>
+    <h2>{{product.name | uppercase}}</h2>
+    <ul>
+
+      <li>Id: {{product.id}}</li>
+      <li>Description: {{product.description}}</li>
+      <li>Price: {{product.price}}</li>
+      <li>SalePrice: {{product.salePrice}}</li>
+      <li>Promo: {{product.promo}}</li>
+      <li>Quantity: {{product.quantity}}</li>
+      <li>Category: {{product.category}}</li>
+    </ul>
+  </section>
+
+</div>
