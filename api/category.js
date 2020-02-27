@@ -6,8 +6,8 @@ export async function handler(event, context) {
   const hasCategory = pathRegExp.test(event.path);
   if (hasCategory) {
     const category = event.path.replace(pathRegExp, '$1');
-    console.log(category);
     if (category === 'cars') {
+      // console.log(CARS_PRODUCTS);
       return {
         statusCode: 200,
         body: JSON.stringify([...CARS_PRODUCTS.values()])

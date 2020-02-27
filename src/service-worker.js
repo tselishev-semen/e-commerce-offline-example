@@ -4,14 +4,43 @@ let db;
 
 //https://thomashunter.name/posts/2019-04-30-service-workers
 const STORAGE_NAME = 'static-v1'; // name of the current cache
+const DB_VERSION = '1'; // name of the current cache
 const INDEX_PAGE = '/';
 
+
+// Initializing Phase
+async function initializeSW() {
+  const initializeDb = async () => {
+    db = await idb.openDB('e-commerce-db', DB_VERSION, {
+      upgrade(db) {
+        const productsStore = db.createObjectStore('products', {keyPath: "id"});
+        productsStore.createIndex('categoryIndex', 'category');
+      }
+    });
+  };
+  const preCache = async () => {
+    const cache = await caches.open(STORAGE_NAME);
+    await cache.addAll([
+      INDEX_PAGE,
+      '/favicon.ico'
+    ]);
+    console.log('preache')
+  };
+  return Promise.all([preCache(), initializeDb()]);
+}
+
+self.addEventListener('install', function (event) {
+  event.waitUntil(initializeSW());
+  self.skipWaiting();
+});
+
+
+//Fetch phase
 async function getProductById(id) {
   let transaction = db.transaction('products', "readonly");
   let productsStore = transaction.objectStore("products");
-  // let categoryIndex = productsStore.index("categoryIndex");
   const product = await productsStore.get(id);
-  await transaction.done;
+  // await transaction.done;
   return product
 }
 
@@ -20,44 +49,9 @@ async function getProductByCategory(category) {
   let productsStore = transaction.objectStore("products");
   let categoryIndex = productsStore.index("categoryIndex");
   const products = await categoryIndex.getAll(category);
-  await transaction.done;
+  // await transaction.done;
   return products
 }
-
-const initializeDb = async () => {
-  db = await idb.openDB('e-commerce-db', '1', {
-    upgrade(db, oldVersion, newVersion, transaction) {
-      const productsStore = db.createObjectStore('products', {keyPath: "id"});
-      productsStore.createIndex('categoryIndex', 'category');
-    },
-    blocked() {
-      // …
-    },
-    blocking() {
-      // …
-    },
-    terminated() {
-      // …
-    },
-  });
-  return db;
-}
-
-self.addEventListener('install', function (event) {
-  const preCache = async () => {
-    const cache = await caches.open(STORAGE_NAME);
-    await cache.addAll([
-      INDEX_PAGE,
-      '/favicon.ico'
-    ])
-  };
-  console.log('INSTALL')
-  event.waitUntil(async () => {
-    await initializeDb();
-    await preCache();
-  });
-  self.skipWaiting();
-});
 
 
 const cacheProductsRequest = async (product) => {
@@ -68,65 +62,39 @@ const cacheProductsRequest = async (product) => {
 };
 
 const cacheCategoryRequest = async (products) => {
+  console.log(products);
   let transaction = db.transaction('products', "readwrite");
   let productsStore = transaction.objectStore("products");
   products.forEach((product) => {
     productsStore.put(product)
   });
-  await transaction.done;
+  return await transaction.done;
 };
 
 
 const isProductsRequest = (url) => /\.netlify\/functions\/products/.test(url);
 const isCategoryRequest = (url) => /\.netlify\/functions\/category/.test(url);
 
-const forwardCachedResources = (event) => async () => {
-  let requestUrl = event.request.url;
-  const entity = requestUrl.replace(/\/(.*)$/, '$1');
-  // console.log(entity, isCategoryRequest, isProductsRequest)
-  if (isCategoryRequest(requestUrl)) {
-    const products = await getProductByCategory(entity);
-    console.log(products)
-    return products
-  } else if (isProductsRequest((requestUrl))) {
-    const product = await getProductById(entity);
-    return product
-  }
-  throw event;
-  // return fetch(event.request);
+
+//forward, dispatch
+async function redirectToIndexPage() {
+  console.log('CATCH navigate')
+  const cache = await caches.open(STORAGE_NAME);
+  //todo: what will happen if cache is empty?
+  return await cache.match(INDEX_PAGE);
 }
 
 
+//todo: https://developers.google.com/web/fundamentals/primers/service-workers/#the_defaults_of_fetch
+//todo: what if we want to extend that by full applying full - search
 self.addEventListener('fetch', event => {
+  const url = event.request.url;
+  // all navigation request are dispatch to index.html
+  //todo: add this to the initial conditions of the tasks
   if (event.request.mode === 'navigate') {
-    fetch(event.request.url)
-      .catch(async () => {
-        console.log('CATCH navigate ')
-        const cache = await caches.open(STORAGE_NAME);
-        const cachedResponse = await cache.match(INDEX_PAGE);
-        return cachedResponse;
-      })
-  }
-  // console.log(event, event.request.mode === 'navigate')
-  let url = event.request.url;
-  if (/\.netlify\/functions/.test(url)) {
-    console.log('URL')
-    console.log(55)
-
-    return event.respondWith(
-      fetch(event.request.url)
-        .then(async (result) => {
-          console.log(1111)
-          console.log('then', isProductsRequest(url), isCategoryRequest(url))
-          // if (isProductsRequest(url)) {
-          //   await cacheProductsRequest(result);
-          // } else if (isCategoryRequest(url)) {
-          //   await cacheCategoryRequest(result)
-          // }
-          return result
-        })
-        .catch(forwardCachedResources(event))
-    );
+    return void event.respondWith(fetch(event.request).catch(redirectToIndexPage));
+    // console.log('NENENEW')
+    // return void fetch(event.request).catch(redirectToIndexPage);
   }
 
   if (!url.startsWith(self.location.origin) || event.request.method !== 'GET') {
@@ -134,35 +102,74 @@ self.addEventListener('fetch', event => {
     return void event.respondWith(fetch(event.request));
   }
 
-  event.respondWith(
-    // Always try to download from server first
-    fetch(event.request).then(response => {
-      // When a download is successful cache the result
-      caches.open(STORAGE_NAME).then(cache => {
-        cache.put(event.request, response)
-      });
-      // And of course display it
-      return response.clone();
-    }).catch((_err) => {
-      // A failure probably means network access issues
-      // See if we have a cached version
-      return caches.match(event.request).then(cachedResponse => {
-        if (cachedResponse) {
-          // We did have a cached version, display it
-          return cachedResponse;
-        }
+  // console.log(event.request);
+  // all api request have fallback for offline mode
+  //todo: what if data incorrect of there is some error
+  if (isCategoryRequest(url)) {
+    console.log('isCategoryRequest:', url)
 
-        // We did not have a cached version, display offline page
-        return caches.open(STORAGE_NAME).then((cache) => {
-          const offlineRequest = new Request('/');
-          return cache.match(offlineRequest);
-        });
-      });
-    })
-  );
+    return void event.respondWith(
+      fetch(event.request)
+        .then(async (response) => {
+          console.log(1111, response);
+          await cacheCategoryRequest(await response.clone().json());
+          console.log(222, 'mememe');
+
+          return response;
+        })
+        .catch(async e => {
+          console.log(e, 'error ')
+          const category = url.replace(/.*\/(.*)$/, '$1');
+          const products = await getProductByCategory(category);
+          console.log(products)
+          return new Response(JSON.stringify(products));
+        })
+    );
+  }
+  if (isProductsRequest(url)) {
+    console.log('isProductsRequest:', url)
+    return void event.respondWith(
+      fetch(event.request)
+        .then(async (result) => {
+          console.log(1111, result);
+          await cacheProductsRequest(await result.clone().json());
+          return result
+        })
+        .catch(async e => {
+          const productId = Number(url.replace(/.*\/(.*)$/, '$1'));
+          const product = await getProductById(productId);
+          console.log(product)
+          return new Response(JSON.stringify(product))
+        })
+    );
+  }
+  event.respondWith(processStaticResources(event.request));
 });
 
+async function processStaticResources(request) {
+  // Always try to download from server first
+  return fetch(request).then(async response => {
+    // When a download is successful cache the result
+    const cache = await caches.open(STORAGE_NAME)
+    await cache.put(request, response);
+    // And of course display it
+    //todo: why do we need clone here
+    return response.clone();
+  }).catch(async err => {
+    // A failure probably means network access issues
+    // See if we have a cached version
+    //todo: doesn;t it generate an error if cache is missing
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) {
+      // We did have a cached version, display it
+      return cachedResponse;
+    }
+    //just return an error if can't handle
+    throw err;
+  })
+}
 
+//https://googlechrome.github.io/samples/service-worker/custom-offline-page/
 // how ro refresh?
 // how to handle errors?
 // https://glebbahmutov.com/
