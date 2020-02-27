@@ -1,36 +1,46 @@
-// importScripts('./ngsw-worker.js');
 if (typeof idb === "undefined") self.importScripts("https://cdn.jsdelivr.net/npm/idb@4.0.5/build/iife/with-async-ittr-min.js");
 let db;
 
-//https://thomashunter.name/posts/2019-04-30-service-workers
-const STORAGE_NAME = 'static-v1'; // name of the current cache
-const DB_VERSION = '1'; // name of the current cache
+
+const STORAGE_NAME = 'static-v1';
+const DB_VERSION = '1';
 const INDEX_PAGE = '/';
 
-
-// Initializing Phase
-async function initializeSW() {
+async function installSW() {
   const initializeDb = async () => {
+    //WARNING: The code doesn't have any migration strategy for updating DB. Take care about it before go to live.
     db = await idb.openDB('e-commerce-db', DB_VERSION, {
       upgrade(db) {
+        /**
+         * create a table to store products in normalized manner
+         * schema:
+         * {
+         *  id: number,
+         *  category: string
+         *  [restProperties: string]: any
+         * }
+         */
         const productsStore = db.createObjectStore('products', {keyPath: "id"});
+        /** create an index to search products by 'category' property*/
         productsStore.createIndex('categoryIndex', 'category');
       }
     });
   };
   const preCache = async () => {
     const cache = await caches.open(STORAGE_NAME);
+
+    //resources
     await cache.addAll([
       INDEX_PAGE,
       '/favicon.ico'
     ]);
-    console.log('preache')
   };
   return Promise.all([preCache(), initializeDb()]);
 }
 
-self.addEventListener('install', function (event) {
-  event.waitUntil(initializeSW());
+self.addEventListener('install', (event) => {
+  event.waitUntil(installSW());
+  //to apply SW immediately. Only for the demo purpuse.
   self.skipWaiting();
 });
 
