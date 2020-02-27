@@ -3,15 +3,8 @@ if (typeof idb === "undefined") self.importScripts("https://cdn.jsdelivr.net/npm
 let db;
 
 //https://thomashunter.name/posts/2019-04-30-service-workers
-const CACHE = 'static-v1'; // name of the current cache
-const OFFLINE = '/';
-// const AUTO_CACHE = [ // URLs of assets to immediately cache
-//   OFFLINE,
-//   '/',
-//   '/service-worker.js',
-//   '/manifest.webmanifest',
-//   '/favicon.ico',
-// ];
+const STORAGE_NAME = 'static-v1'; // name of the current cache
+const INDEX_PAGE = '/';
 
 async function getProductById(id) {
   let transaction = db.transaction('products', "readonly");
@@ -51,14 +44,18 @@ const initializeDb = async () => {
 }
 
 self.addEventListener('install', function (event) {
+  const preCache = async () => {
+    const cache = await caches.open(STORAGE_NAME);
+    await cache.addAll([
+      INDEX_PAGE,
+      '/favicon.ico'
+    ])
+  };
   console.log('INSTALL')
-  event.waitUntil(
-    initializeDb(),
-    // () => self.skipWaiting()
-    // caches.open(CACHE)
-    //     .then(cache => cache.addAll(AUTO_CACHE))
-    //     .then(initializeDb)
-  )
+  event.waitUntil(async () => {
+    await initializeDb();
+    await preCache();
+  });
   self.skipWaiting();
 });
 
@@ -80,7 +77,7 @@ const cacheCategoryRequest = async (products) => {
 };
 
 
-const isProductsRequest = (url) => /\.netlify\/functions\/products/.test(requestUrl);
+const isProductsRequest = (url) => /\.netlify\/functions\/products/.test(url);
 const isCategoryRequest = (url) => /\.netlify\/functions\/category/.test(url);
 
 const forwardCachedResources = (event) => async () => {
@@ -101,19 +98,32 @@ const forwardCachedResources = (event) => async () => {
 
 
 self.addEventListener('fetch', event => {
+  if (event.request.mode === 'navigate') {
+    fetch(event.request.url)
+      .catch(async () => {
+        console.log('CATCH navigate ')
+        const cache = await caches.open(STORAGE_NAME);
+        const cachedResponse = await cache.match(INDEX_PAGE);
+        return cachedResponse;
+      })
+  }
+  // console.log(event, event.request.mode === 'navigate')
   let url = event.request.url;
   if (/\.netlify\/functions/.test(url)) {
     console.log('URL')
+    console.log(55)
+
     return event.respondWith(
-      fetch(event.request)
+      fetch(event.request.url)
         .then(async (result) => {
+          console.log(1111)
           console.log('then', isProductsRequest(url), isCategoryRequest(url))
           // if (isProductsRequest(url)) {
           //   await cacheProductsRequest(result);
           // } else if (isCategoryRequest(url)) {
           //   await cacheCategoryRequest(result)
           // }
-          return await result
+          return result
         })
         .catch(forwardCachedResources(event))
     );
@@ -128,7 +138,7 @@ self.addEventListener('fetch', event => {
     // Always try to download from server first
     fetch(event.request).then(response => {
       // When a download is successful cache the result
-      caches.open(CACHE).then(cache => {
+      caches.open(STORAGE_NAME).then(cache => {
         cache.put(event.request, response)
       });
       // And of course display it
@@ -143,7 +153,7 @@ self.addEventListener('fetch', event => {
         }
 
         // We did not have a cached version, display offline page
-        return caches.open(CACHE).then((cache) => {
+        return caches.open(STORAGE_NAME).then((cache) => {
           const offlineRequest = new Request('/');
           return cache.match(offlineRequest);
         });
@@ -156,3 +166,5 @@ self.addEventListener('fetch', event => {
 // how ro refresh?
 // how to handle errors?
 // https://glebbahmutov.com/
+
+//https://developers.google.com/web/fundamentals/primers/service-workers/high-performance-loading#first_what_are_navigation_requests
