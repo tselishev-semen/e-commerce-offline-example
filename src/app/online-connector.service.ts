@@ -1,6 +1,6 @@
 import {EventEmitter, Injectable, OnDestroy} from '@angular/core';
 import {fromEvent, Observable, Subject, Subscription} from 'rxjs';
-import {startWith} from "rxjs/operators";
+import {startWith} from 'rxjs/operators';
 
 
 @Injectable({
@@ -13,7 +13,7 @@ export class OnlineConnectorService implements OnDestroy {
   online$: Observable<boolean>;
 
   constructor() {
-    console.log('constructor', window.navigator.onLine)
+    console.log('constructor', window.navigator.onLine);
     const onlineStatusEmitter = new EventEmitter<boolean>();
 
     this.online$ = onlineStatusEmitter.pipe(

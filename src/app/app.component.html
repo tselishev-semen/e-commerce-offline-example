@@ -1,9 +1,18 @@
-<h1>{{title}}</h1>
-<app-online-banner></app-online-banner>
-<nav class="nav">
-  <a routerLink="/category/cars" class="link">Car1s</a>
-  <a routerLink="/category/misc" class="link">Misc</a>
-</nav>
-<router-outlet></router-outlet>
-
-<button type="button" (click)="goBack()">Go back</button>
+<header class="header">
+  <h1>
+    E-commerce
+    <sub *ngIf="!online" class="offline-banner">
+      offline mode
+    </sub>
+  </h1>
+  <nav class="nav">
+    <a routerLink="/category/cars" class="link">Cars</a>
+    <a routerLink="/category/misc" class="link">Misc</a>
+  </nav>
+</header>
+<div class="container">
+  <button type="button" (click)="goBack()">Go back</button>
+</div>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

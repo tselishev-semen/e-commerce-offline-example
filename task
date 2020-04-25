@@ -1,8 +1,81 @@
-no error handling
-upgrading database or sw cache
+How to create an offline app for e-commerce application
+
+I was always wondering, how it's possible to utilize latest cutting - edge technologies in real apps.
+Not educational foo-buz or TODO app examples, but the useful ones.
+
+Let's imagine you are working for a huge Retail company. A lot of sales nowadays are from mobiles devices.
+The mobile internet is not always stable and reliable and small disruption for 1- 2 minutes are very possible,
+especially if you are commuting from home to work or vice versa.
+Put it simple, what I wanted to achieve is the following:
+As soon as user lost his connection he must be still able work with the product data on the client until the connection is restored.
+
+
+
+
+once the product information was loaded by any endpoint it stored in the localDB
+and when users is offline, we show products from the local DB instead of showing nothing
+
+Scope of work:
+  -  2 types of pages:
+       1) Product Categories - to see the catalog of product by category
+       2) Product Page Details - where we can see detail info about the product
+  -  2 API endpoints:
+       1) to load Product by ID
+       2) to load Product by Category
+  - Local database to store Products
+  - in any backend failure we fallback to the our LocalDB
+
+
+
+Out of scope
+ - Cache revalidation
+ - No edge / error cases handling
+ - No migration DB approach
+ - SW code is very simplified and includes the bare minimum and adapted for the demo purposes
+
+
+
+Why would you need this? Firstly, it's not a trivial task and you will experience many caveats on the road.
+From the business perspective,  this solution unlock the following features:
+ - add to cart from offline and sync once the connection is restored
+ - search for products in offline
+
+
+
+Because I really bored to write reducers, selectors and actions from the last years of working with react, today we have an
+fully-fledged Angular app.
+
+
+1 Work with the database
+  async
+  import locally
+  save product /update
+  integrate with API
+
+
+  indexes
+2 API mocks on netlify
+
+3 Offline  detection
+
+4) service worker
+   - distinguish navigation requests
+   - spa to index.html fallbacl
+
+4 SW tuning
+  - skipWaiting
+  - claimControl
+  - work from DB outside of SW
+
+
+Articles:
 
 https://thomashunter.name/posts/2019-04-30-service-workers
 
+//https://googlechrome.github.io/samples/service-worker/custom-offline-page/
+// https://glebbahmutov.com/
+
+//https://developers.google.com/web/fundamentals/primers/service-workers/high-performance-loading#first_what_are_navigation_requests
 
 
 
