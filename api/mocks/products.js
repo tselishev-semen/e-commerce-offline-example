@@ -1,7 +1,7 @@
 const car1 = {
   id: 1,
-  // image: 'https://i.picsum.photos/id/1072/3872/2592.jpg',
-  image: 'https://i.picsum.photos/id/1072/500/600.jpg',
+  // image: 'https://picsum.photos/id/1072/3872/2592.jpg',
+  image: 'https://picsum.photos/id/1072/500/600.jpg',
   name: 'Rusted Truck Old',
   color: 'rusted yellow',
   year: 1976,
@@ -24,8 +24,8 @@ const car1 = {
 
 const car2 = {
   id: 2,
-  // image: 'https://i.picsum.photos/id/1071/3000/1996.jpg',
-  image: 'https://i.picsum.photos/id/1071/500/600.jpg',
+  // image: 'https://picsum.photos/id/1071/3000/1996.jpg',
+  image: 'https://picsum.photos/id/1071/500/600.jpg',
   name: 'Lincoln continental',
   color: 'stylish green',
   year: 1981,
@@ -41,8 +41,8 @@ const car2 = {
 
 const car3 = {
   id: 3,
-  // image: 'https://i.picsum.photos/id/111/4400/2656.jpg',
-  image: 'https://i.picsum.photos/id/111/500/600.jpg',
+  // image: 'https://picsum.photos/id/111/4400/2656.jpg',
+  image: 'https://picsum.photos/id/111/500/600.jpg',
   name: 'A vintage car with Farmer Boy plate',
   color: 'vintage',
   year: 1929,
@@ -60,8 +60,8 @@ const car3 = {
 
 const car4 = {
   id: 4,
-  // image: 'https://i.picsum.photos/id/183/2316/1544.jpg',
-  image: 'https://i.picsum.photos/id/183/500/600.jpg',
+  // image: 'https://picsum.photos/id/183/2316/1544.jpg',
+  image: 'https://picsum.photos/id/183/500/600.jpg',
   name: 'BMW Lab',
   color: 'blank blue',
   year: 1989,
@@ -75,8 +75,8 @@ const car4 = {
 
 const car5 = {
   id: 5,
-  // image: 'https://i.picsum.photos/id/45/4592/2576.jpg',
-  image: 'https://i.picsum.photos/id/45/500/600.jpg',
+  // image: 'https://picsum.photos/id/45/4592/2576.jpg',
+  image: 'https://picsum.photos/id/45/500/600.jpg',
   name: 'Tuk Tuk',
   color: 'yellow-green',
   year: 2009,
@@ -102,8 +102,8 @@ CARS_PRODUCTS.set(5, car5);
 
 const product1 = {
   id: 10,
-  // image: 'https://i.picsum.photos/id/212/2000/1394.jpg',
-  image: 'https://i.picsum.photos/id/212/500/600.jpg',
+  // image: 'https://picsum.photos/id/212/2000/1394.jpg',
+  image: 'https://picsum.photos/id/212/500/600.jpg',
   name: 'Street Bicycle',
   color: 'blue',
   year: 2018,
@@ -123,8 +123,8 @@ const product1 = {
 
 const product2 = {
   id: 11,
-  // image: 'https://i.picsum.photos/id/1071/3000/1996.jpg',
-  image: 'https://i.picsum.photos/id/1071/500/600.jpg',
+  // image: 'https://picsum.photos/id/1071/3000/1996.jpg',
+  image: 'https://picsum.photos/id/1071/500/600.jpg',
   name: 'Old ship',
   color: 'beige',
   year: 2001,
@@ -140,8 +140,8 @@ const product2 = {
 
 const product3 = {
   id: 12,
-  // image: 'https://i.picsum.photos/id/401/5184/3456.jpg',
-  image: 'https://i.picsum.photos/id/401/500/600.jpg',
+  // image: 'https://picsum.photos/id/401/5184/3456.jpg',
+  image: 'https://picsum.photos/id/401/500/600.jpg',
   name: 'Hot air balloon',
   color: 'vintage',
   year: 1929,
